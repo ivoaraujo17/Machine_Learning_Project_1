@@ -3,7 +3,8 @@ import numpy as np
 def read(path):
     with open(path, "r") as arq:
         linhas = arq.readlines()
-        with open(f"{path}_reduzido.csv", "w") as arq_reduzido:
+        nome = path.split(".")[0]
+        with open(f"{nome}_reduzido.csv", "w") as arq_reduzido:
             arq_reduzido.write("label;intensidade;simetria\n")
             for linha in linhas[1:]:
                 linha_ = linha.split(";")
@@ -41,5 +42,5 @@ def read(path):
             
 
 if __name__ == "__main__":
-    read("Machine_Learning_Project_1/test.csv")
-    read("Machine_Learning_Project_1/train.csv")
+    read("test.csv")
+    read("train.csv")
