@@ -14,12 +14,11 @@ def read(path):
                 coluna = 0
                 for x in linha_[1:]:
                     X[linha, coluna] = float(x)
-                    if linha == 27:
-                        coluna += 1
-                        linha = 0
-                    else:
+                    if coluna == 27:
                         linha += 1
-                        
+                        coluna = 0
+                    else:
+                        coluna += 1
                 # calcula intensidade
                 intensidade = X.sum()/255
                 # calcula simetria
@@ -31,8 +30,8 @@ def read(path):
                 simetria_v = simetria_v/255
 
                 simetria_h = 0
-                for i in range(14):
-                    for j in range(28):
+                for j in range(28):
+                    for i in range(14):
                         simetria_h += abs(X[i, j] - X[27-i, j])
                 
                 simetria_h = simetria_h/255
