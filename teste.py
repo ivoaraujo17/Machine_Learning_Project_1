@@ -3,10 +3,10 @@ from numpy import log,dot,exp,shape
 import pandas as pd
 import matplotlib.pyplot as plt
 
-dados = pd.read_csv("train_reduzido_filter_1_5.csv", sep=";")
+dados = pd.read_csv("Dados/train_reduzido_filter_1_5.csv", sep=";")
 X_train = dados[['simetria', 'intensidade']].values
 y_train = dados['label'].values
-dados = pd.read_csv("test_reduzido_filter_1_5.csv", sep=";")
+dados = pd.read_csv("Dados/test_reduzido_filter_1_5.csv", sep=";")
 X_test = dados[['simetria', 'intensidade']].values
 y_test = dados['label'].values
 y_test[y_test == 1] = 0
