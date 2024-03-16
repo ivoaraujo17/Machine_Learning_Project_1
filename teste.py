@@ -1,28 +1,31 @@
 import numpy as np 
 from numpy import log,dot,exp,shape
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 
 dados = pd.read_csv("Dados/train_reduzido_filter_1_5.csv", sep=";")
-X_train = dados[['simetria', 'intensidade']].values
-y_train = dados['label'].values
+X_treino = dados[['simetria', 'intensidade']].values
+y_treino = dados['label'].values
 dados = pd.read_csv("Dados/test_reduzido_filter_1_5.csv", sep=";")
-X_test = dados[['simetria', 'intensidade']].values
-y_test = dados['label'].values
-y_test[y_test == 1] = 0
-y_test[y_test == 5] = 1
+X_teste = dados[['simetria', 'intensidade']].values
+y_teste = dados['label'].values
+y_teste[y_teste == 1] = 0
+y_teste[y_teste == 5] = 1
+y_treino[y_treino == 1] = 0
+y_treino[y_treino == 5] = 1
 
-def standardize(X_tr):
+def padronizar(X_tr):
     for i in range(shape(X_tr)[1]):
         X_tr[:,i] = (X_tr[:,i] - np.mean(X_tr[:,i]))/np.std(X_tr[:,i])
         #X_tr[:,i] = np.sign(X_tr[:,i])
 
     return X_tr
-X_train = standardize(X_train)
-print(X_train)
-X_test = standardize(X_test)
+X_treino = padronizar(X_treino)
+print(X_treino)
+X_teste = padronizar(X_teste)
 
-def F1_score(y, y_hat):
+def pontuacao_F1(y, y_hat):
     tp, tn, fp, fn = 0, 0, 0, 0
 
     for i in range(len(y)):
@@ -34,64 +37,64 @@ def F1_score(y, y_hat):
             fp += 1
         elif y[i] == 0 and y_hat[i] == 0:
             tn += 1
-    precision = tp / (tp + fp)
+    precisao = tp / (tp + fp)
     recall = tp / (tp + fn)
-    f1_score = 2 * precision * recall / (precision + recall)
-    return f1_score
-class LogisticRegression:
+    pontuacao_f1 = 2 * precisao * recall / (precisao + recall)
+    return pontuacao_f1
+class RegressaoLogistica:
     def sigmoid(self, z):
         sig = 1 / (1 + exp(-z))
         return sig
-    def initialize(self, X):
-        weights = np.zeros((shape(X)[1] + 1, 1))
+    def inicializar(self, X):
+        pesos = np.zeros((shape(X)[1] + 1, 1))
         X = np.c_[np.ones((shape(X)[0], 1)), X]
-        return weights, X
-    def fit(self, X, y, alpha=0.001, iter=400):
-        weights, X = self.initialize(X)
-        def cost(theta):
+        return pesos, X
+    def ajustar(self, X, y, alpha=0.0001, iteracoes=400):
+        pesos, X = self.inicializar(X)
+        def custo(theta):
             z = dot(X, theta)
-            cost0 = y.T.dot(log(self.sigmoid(z) + 1e-15))  # Add epsilon to avoid log(0)
-            cost1 = (1 - y).T.dot(log(1 - self.sigmoid(z) + 1e-15))  # Add epsilon to avoid log(0)
-            cost = -((cost1 + cost0)) / len(y)
-            return cost
-        cost_list = np.zeros(iter,)
-        for i in range(iter):
-            weights = weights - alpha * dot(X.T, self.sigmoid(dot(X, weights)) - np.reshape(y, (len(y), 1)))
-            cost_list[i] = cost(weights).item()
-        self.weights = weights
-        return cost_list, weights
-    def predict(self, X):
-        z = dot(self.initialize(X)[1], self.weights)
-        lis = []
+            custo0 = y.T.dot(log(self.sigmoid(z) + 1e-15))  # Adicionar epsilon para evitar log(0)
+            custo1 = (1 - y).T.dot(log(1 - self.sigmoid(z) + 1e-15))  # Adicionar epsilon para evitar log(0)
+            custo = -((custo1 + custo0)) / len(y)
+            return custo
+        lista_custos = np.zeros(iteracoes,)
+        for i in range(iteracoes):
+            pesos = pesos - alpha * dot(X.T, self.sigmoid(dot(X, pesos)) - np.reshape(y, (len(y), 1)))
+            lista_custos[i] = custo(pesos).item()
+        self.pesos = pesos
+        return lista_custos, pesos
+    def prever(self, X):
+        z = dot(self.inicializar(X)[1], self.pesos)
+        lista = []
         for i in self.sigmoid(z):
             if i > 0.5:
-                lis.append(1)
+                lista.append(1)
             else:
-                lis.append(0)
-        return lis
+                lista.append(0)
+        return lista
 
-obj1 = LogisticRegression()
-model, weights = obj1.fit(X_train, y_train)
-y_pred = obj1.predict(X_test)
-y_train = obj1.predict(X_train)
+obj1 = RegressaoLogistica()
+modelo, pesos = obj1.ajustar(X_treino, y_treino)
+y_predito = obj1.prever(X_teste)
+y_treino = obj1.prever(X_treino)
 
-# Let's see the f1-score for training and testing data
-f1_score_tr = F1_score(y_train, y_train)
-f1_score_te = F1_score(y_test, y_pred)
+# Vamos ver a pontuação F1 para os dados de treinamento e teste
+pontuacao_f1_tr = pontuacao_F1(y_treino, y_treino)
+pontuacao_f1_te = pontuacao_F1(y_teste, y_predito)
 
-print("testando com a amostra que foi treinada:",f1_score_tr)
-print("testando com a amostra de fora:",f1_score_te)
-# Plotting the decision boundary
-x1 = np.linspace(np.min(X_train[:, 0]), np.max(X_train[:, 0]), 100)
-x2 = np.linspace(np.min(X_train[:, 1]), np.max(X_train[:, 1]), 100)
+print("Testando com a amostra que foi treinada:", pontuacao_f1_tr)
+print("Testando com a amostra de fora:", pontuacao_f1_te)
+# Plotando o limite de decisão
+x1 = np.linspace(np.min(X_treino[:, 0]), np.max(X_treino[:, 0]), 100)
+x2 = np.linspace(np.min(X_treino[:, 1]), np.max(X_treino[:, 1]), 100)
 xx1, xx2 = np.meshgrid(x1, x2)
 X_grid = np.c_[xx1.ravel(), xx2.ravel()]
-y_grid = obj1.predict(X_grid)
+y_grid = obj1.prever(X_grid)
 y_grid = np.array(y_grid).reshape(xx1.shape)
 
 plt.contourf(xx1, xx2, y_grid, alpha=0.1)
-plt.scatter(X_test[:, 0], X_test[:, 1], c=y_pred)
+plt.scatter(X_teste[:, 0], X_teste[:, 1], c=y_predito)
 plt.xlabel('Simetria')
 plt.ylabel('Intensidade')
-plt.title('Logistic Regression - Decision Boundary')
+plt.title('Regressão Logística - Limite de Decisão')
 plt.show()
