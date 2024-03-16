@@ -81,9 +81,17 @@ f1_score_te = F1_score(y_test, y_pred)
 
 print("testando com a amostra que foi treinada:",f1_score_tr)
 print("testando com a amostra de fora:",f1_score_te)
-plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train)
+# Plotting the decision boundary
+x1 = np.linspace(np.min(X_train[:, 0]), np.max(X_train[:, 0]), 100)
+x2 = np.linspace(np.min(X_train[:, 1]), np.max(X_train[:, 1]), 100)
+xx1, xx2 = np.meshgrid(x1, x2)
+X_grid = np.c_[xx1.ravel(), xx2.ravel()]
+y_grid = obj1.predict(X_grid)
+y_grid = np.array(y_grid).reshape(xx1.shape)
+
+plt.contourf(xx1, xx2, y_grid, alpha=0.1)
+plt.scatter(X_test[:, 0], X_test[:, 1], c=y_pred)
 plt.xlabel('Simetria')
 plt.ylabel('Intensidade')
 plt.title('Logistic Regression - Decision Boundary')
 plt.show()
-
