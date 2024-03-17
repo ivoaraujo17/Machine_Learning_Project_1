@@ -76,14 +76,15 @@ pontuacao_f1_te = pontuacao_F1(y_teste, y_predito)
 print("Testando com a amostra que foi treinada:", pontuacao_f1_tr)
 print("Testando com a amostra de fora:", pontuacao_f1_te)
  # Plotando o limite de decisão
-x1 = np.linspace(np.min(X_treino[:, 0]), np.max(X_treino[:, 0]), 100)
-x2 = np.linspace(np.min(X_treino[:, 1]), np.max(X_treino[:, 1]), 100)
-xx1, xx2 = np.meshgrid(x1, x2)
-X_grid = np.c_[xx1.ravel(), xx2.ravel()]
-y_grid = obj2.prever(X_grid)
-y_grid = np.array(y_grid).reshape(xx1.shape)
+# x1 = np.linspace(np.min(X_treino[:, 0]), np.max(X_treino[:, 0]), 100)
+# x2 = np.linspace(np.min(X_treino[:, 1]), np.max(X_treino[:, 1]), 100)
+# xx1, xx2 = np.meshgrid(x1, x2)
+# X_grid = np.c_[xx1.ravel(), xx2.ravel()]
+# y_grid = obj2.prever(X_grid)
+# y_grid = np.array(y_grid).reshape(xx1.shape)
 
-plt.contourf(xx1, xx2, y_grid, alpha=0.1)
+# plt.contourf(xx1, xx2, y_grid, alpha=0.1)
+plt.plot(X_treino, (-pesos[0] - pesos[1] * X_treino)/pesos[2], color='red')
 plt.scatter(X_teste[:, 0], X_teste[:, 1], c=y_predito)
 plt.xlabel('Simetria')
 plt.ylabel('Intensidade')
