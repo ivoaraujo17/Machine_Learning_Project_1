@@ -1,6 +1,6 @@
-import numpy as np 
-from numpy import log,dot,exp,shape
+import numpy as np
 import pandas as pd
+
 import matplotlib.pyplot as plt
 
 dados = pd.read_csv("Dados/train_reduzido_filter_1_5.csv", sep=";")
@@ -13,16 +13,6 @@ y_teste[y_teste == 1] = 0
 y_teste[y_teste == 5] = 1
 y_treino[y_treino == 1] = 0
 y_treino[y_treino == 5] = 1
-
-def padronizar(X_tr):
-    for i in range(shape(X_tr)[1]):
-        X_tr[:,i] = (X_tr[:,i] - np.mean(X_tr[:,i]))/np.std(X_tr[:,i])
-        #X_tr[:,i] = np.sign(X_tr[:,i])
-
-    return X_tr
-X_treino = padronizar(X_treino)
-print(X_treino)
-X_teste = padronizar(X_teste)
 
 def pontuacao_F1(y, y_hat):
     tp, tn, fp, fn = 0, 0, 0, 0
@@ -40,60 +30,62 @@ def pontuacao_F1(y, y_hat):
     recall = tp / (tp + fn)
     pontuacao_f1 = 2 * precisao * recall / (precisao + recall)
     return pontuacao_f1
-class RegressaoLogistica:
-    def sigmoid(self, z):
-        sig = 1 / (1 + exp(-z))
-        return sig
+
+def padronizar(X_tr):
+    for i in range(X_tr.shape[1]):
+        X_tr[:, i] = (X_tr[:, i] - np.mean(X_tr[:, i])) / np.std(X_tr[:, i])
+    return X_tr
+
+X_treino = padronizar(X_treino)
+X_teste = padronizar(X_teste)
+
+class RegressaoLinear:
+    def __init__(self):
+        self.pesos = None
+
     def inicializar(self, X):
-        pesos = np.zeros((shape(X)[1] + 1, 1))
-        X = np.c_[np.ones((shape(X)[0], 1)), X]
+        pesos = np.zeros((X.shape[1] + 1, 1))
+        X = np.c_[np.ones((X.shape[0], 1)), X]
         return pesos, X
-    def ajustar(self, X, y, alpha=0.0001, iteracoes=400):
+
+    def ajustar(self, X, y):
         pesos, X = self.inicializar(X)
-        def custo(theta):
-            z = dot(X, theta)
-            custo0 = y.T.dot(log(self.sigmoid(z) + 1e-15))  # Adicionar epsilon para evitar log(0)
-            custo1 = (1 - y).T.dot(log(1 - self.sigmoid(z) + 1e-15))  # Adicionar epsilon para evitar log(0)
-            custo = -((custo1 + custo0)) / len(y)
-            return custo
-        lista_custos = np.zeros(iteracoes,)
-        for i in range(iteracoes):
-            pesos = pesos - alpha * dot(X.T, self.sigmoid(dot(X, pesos)) - np.reshape(y, (len(y), 1)))
-            lista_custos[i] = custo(pesos).item()
+        pesos = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(y)
         self.pesos = pesos
-        return lista_custos, pesos
+        return pesos
+
     def prever(self, X):
-        z = dot(self.inicializar(X)[1], self.pesos)
-        lista = []
-        for i in self.sigmoid(z):
-            if i > 0.5:
-                lista.append(1)
+        X = np.c_[np.ones((X.shape[0], 1)), X]
+        y_predito = X.dot(self.pesos)
+        for i in range(len(y_predito)):
+            if y_predito[i] > 0.5:
+                y_predito[i] = 1
             else:
-                lista.append(0)
-        return lista
+                y_predito[i] = 0
+        return y_predito
 
-obj1 = RegressaoLogistica()
-modelo, pesos = obj1.ajustar(X_treino, y_treino)
-y_predito = obj1.prever(X_teste)
-y_treino = obj1.prever(X_treino)
-
+obj2 = RegressaoLinear()
+pesos = obj2.ajustar(X_treino, y_treino)
+y_predito = obj2.prever(X_teste)
+y_treino_predito = obj2.prever(X_treino)
+print(pesos)
 # Vamos ver a pontuação F1 para os dados de treinamento e teste
-pontuacao_f1_tr = pontuacao_F1(y_treino, y_treino)
+pontuacao_f1_tr = pontuacao_F1(y_treino, y_treino_predito)
 pontuacao_f1_te = pontuacao_F1(y_teste, y_predito)
 
 print("Testando com a amostra que foi treinada:", pontuacao_f1_tr)
 print("Testando com a amostra de fora:", pontuacao_f1_te)
-# Plotando o limite de decisão
+ # Plotando o limite de decisão
 x1 = np.linspace(np.min(X_treino[:, 0]), np.max(X_treino[:, 0]), 100)
 x2 = np.linspace(np.min(X_treino[:, 1]), np.max(X_treino[:, 1]), 100)
 xx1, xx2 = np.meshgrid(x1, x2)
 X_grid = np.c_[xx1.ravel(), xx2.ravel()]
-y_grid = obj1.prever(X_grid)
+y_grid = obj2.prever(X_grid)
 y_grid = np.array(y_grid).reshape(xx1.shape)
 
 plt.contourf(xx1, xx2, y_grid, alpha=0.1)
 plt.scatter(X_teste[:, 0], X_teste[:, 1], c=y_predito)
 plt.xlabel('Simetria')
 plt.ylabel('Intensidade')
-plt.title('Regressão Logística - Limite de Decisão')
+plt.title('Regressão Linear - Limite de Decisão')
 plt.show()
