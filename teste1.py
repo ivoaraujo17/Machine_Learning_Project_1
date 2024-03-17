@@ -9,9 +9,9 @@ y_treino = dados['label'].values
 dados = pd.read_csv("Dados/test_reduzido_filter_1_5.csv", sep=";")
 X_teste = dados[['simetria', 'intensidade']].values
 y_teste = dados['label'].values
-y_teste[y_teste == 1] = 0
+y_teste[y_teste == 1] = -1
 y_teste[y_teste == 5] = 1
-y_treino[y_treino == 1] = 0
+y_treino[y_treino == 1] = -1
 y_treino[y_treino == 5] = 1
 
 def pontuacao_F1(y, y_hat):
@@ -20,11 +20,11 @@ def pontuacao_F1(y, y_hat):
     for i in range(len(y)):
         if y[i] == 1 and y_hat[i] == 1:
             tp += 1
-        elif y[i] == 1 and y_hat[i] == 0:
+        elif y[i] == 1 and y_hat[i] == -1:
             fn += 1
-        elif y[i] == 0 and y_hat[i] == 1:
+        elif y[i] == -1 and y_hat[i] == 1:
             fp += 1
-        elif y[i] == 0 and y_hat[i] == 0:
+        elif y[i] == -1 and y_hat[i] == -1:
             tn += 1
     precisao = tp / (tp + fp)
     recall = tp / (tp + fn)
@@ -58,10 +58,10 @@ class RegressaoLinear:
         X = np.c_[np.ones((X.shape[0], 1)), X]
         y_predito = X.dot(self.pesos)
         for i in range(len(y_predito)):
-            if y_predito[i] > 0.5:
+            if y_predito[i] > 0:
                 y_predito[i] = 1
             else:
-                y_predito[i] = 0
+                y_predito[i] = -1
         return y_predito
 
 obj2 = RegressaoLinear()
@@ -84,9 +84,9 @@ print("Testando com a amostra de fora:", pontuacao_f1_te)
 # y_grid = np.array(y_grid).reshape(xx1.shape)
 
 # plt.contourf(xx1, xx2, y_grid, alpha=0.1)
-plt.plot(X_treino, (-pesos[0] - pesos[1] * X_treino)/pesos[2], color='red')
-plt.scatter(X_teste[:, 0], X_teste[:, 1], c=y_predito)
-plt.xlabel('Simetria')
-plt.ylabel('Intensidade')
-plt.title('Regressão Linear - Limite de Decisão')
+X1 = X_teste[y_teste == 1]
+X2 = X_teste[y_teste == -1]
+plt.plot(X1[:, 0], X1[:, 1], 'ro')
+plt.plot(X2[:, 0], X2[:, 1], 'bo')
+plt.plot(X_teste, (-pesos[0] - pesos[1]*X_teste) / pesos[2], c='orange')
 plt.show()
