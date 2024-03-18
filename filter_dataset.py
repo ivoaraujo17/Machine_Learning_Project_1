@@ -11,5 +11,5 @@ def filter(path, digito_1, digito_2):
                     arq_filter.write(linha)
 
 if __name__ == "__main__":
-    filter("test_reduzido.csv", 1, 5)
-    filter("train_reduzido.csv", 1, 5)
+    filter("Dados/test_reduzido.csv", 4, 5)
+    filter("Dados/train_reduzido.csv", 4, 5)
