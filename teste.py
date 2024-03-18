@@ -1,7 +1,6 @@
 import numpy as np 
 from numpy import log,dot,exp,shape
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 
 dados = pd.read_csv("Dados/train_reduzido_filter_1_5.csv", sep=";")
@@ -22,7 +21,6 @@ def padronizar(X_tr):
 
     return X_tr
 X_treino = padronizar(X_treino)
-print(X_treino)
 X_teste = padronizar(X_teste)
 
 def pontuacao_F1(y, y_hat):
@@ -85,16 +83,9 @@ pontuacao_f1_te = pontuacao_F1(y_teste, y_predito)
 print("Testando com a amostra que foi treinada:", pontuacao_f1_tr)
 print("Testando com a amostra de fora:", pontuacao_f1_te)
 # Plotando o limite de decisão
-x1 = np.linspace(np.min(X_treino[:, 0]), np.max(X_treino[:, 0]), 100)
-x2 = np.linspace(np.min(X_treino[:, 1]), np.max(X_treino[:, 1]), 100)
-xx1, xx2 = np.meshgrid(x1, x2)
-X_grid = np.c_[xx1.ravel(), xx2.ravel()]
-y_grid = obj1.prever(X_grid)
-y_grid = np.array(y_grid).reshape(xx1.shape)
-
-plt.contourf(xx1, xx2, y_grid, alpha=0.1)
-plt.scatter(X_teste[:, 0], X_teste[:, 1], c=y_predito)
-plt.xlabel('Simetria')
-plt.ylabel('Intensidade')
-plt.title('Regressão Logística - Limite de Decisão')
+X1 = X_teste[y_teste == 1]
+X2 = X_teste[y_teste == 0]
+plt.plot(X1[:, 0], X1[:, 1], 'ro')
+plt.plot(X2[:, 0], X2[:, 1], 'bo')
+plt.plot(X_teste, (-pesos[0] - pesos[1]*X_teste) / pesos[2], c='orange')
 plt.show()
