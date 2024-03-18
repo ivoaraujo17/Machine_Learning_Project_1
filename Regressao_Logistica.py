@@ -46,8 +46,8 @@ class RegressaoLogistica:
         plt.plot(X2[:, 1], X2[:, 2], 'bo')
         plt.plot(self.X, (-self.w[0] - self.w[1]*self.X) / self.w[2], c='orange')
         # limita com o maior e menor valor de x e y
-        plt.xlim(np.min(self.X[:, 1]) - 1, np.max(self.X[:, 1]) + 1)
-        plt.ylim(np.min(self.X[:, 2]) - 1, np.max(self.X[:, 2]) + 1)      
+        plt.xlim(np.min(self.X[:, 1]) - 0.5, np.max(self.X[:, 1]) + 0.5)
+        plt.ylim(np.min(self.X[:, 2]) - 0.5, np.max(self.X[:, 2]) + 0.5)       
         plt.show()
 
 
