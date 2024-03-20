@@ -29,15 +29,17 @@ class RegressaoLogistica:
             self.w = self.w - alpha * np.dot(self.X.T, self.sigmoid(np.dot(self.X, self.w)) - np.reshape(self.y, (len(self.y), 1)))
             lista_custos[i] = self.custo(self.w).item()
 
-    def predict(self, X_):
-        z = np.dot(X_, self.w)
-        lista = []
-        for i in self.sigmoid(z):
-            if i > 0.5:
-                lista.append(1)
-            else:
-                lista.append(0)
-        return lista
+    def predict(self, x):
+        # se x é um vetor com tamanho de w - 1
+        if len(x) == len(self.w) - 1:
+            x = np.insert(x, 0, 1)
+        # se x é uma matriz com n linhas e w - 1 colunas
+        elif len(x[0]) == len(self.w) - 1:
+            # adicona a coluna de 1
+            x = np.c_[np.ones((len(x), 1)), x]
+
+        z = np.dot(x, self.w)
+        return np.array([1 if y > 0.5 else 0 for y in self.sigmoid(z)])
 
     def plot(self):
         X1 = self.X[self.y == 1]

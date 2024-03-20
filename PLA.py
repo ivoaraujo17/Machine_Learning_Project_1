@@ -32,7 +32,15 @@ class PlaPocket():
         return self.w
 
     def predict(self, x):
-        return np.sign(np.dot(self.w, x))
+        # se x é um vetor com tamanho de w - 1
+        if len(x) == len(self.w) - 1:
+            x = np.insert(x, 0, 1)
+        # se x é uma matriz com n linhas e w - 1 colunas
+        elif len(x[0]) == len(self.w) - 1:
+            # adicona a coluna de 1
+            x = np.c_[np.ones((len(x), 1)), x]
+
+        return np.sign(np.dot(x, self.w))
     
     def __erro_amostra(self):
         error = 0
