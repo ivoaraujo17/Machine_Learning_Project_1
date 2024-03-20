@@ -18,14 +18,14 @@ class RegressaoLinear:
         # se x é um vetor com tamanho de w - 1
         if len(x) == len(self.w) - 1:
             x = np.insert(x, 0, 1)
+            y_predito = np.dot(x, self.w)
+            return 1 if y_predito > 0 else -1
         # se x é uma matriz com n linhas e w - 1 colunas
         elif len(x[0]) == len(self.w) - 1:
             # adicona a coluna de 1
             x = np.c_[np.ones((len(x), 1)), x]
-
-        y_predito = np.dot(x, self.w)
-        
-        return np.array([1 if y > 0 else -1 for y in y_predito])
+            y_predito = np.dot(x, self.w)
+            return np.array([1 if y > 0 else -1 for y in y_predito])
     
     def plot(self):
         X1 = self.X[self.y == 1]
