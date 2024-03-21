@@ -30,9 +30,10 @@ class RegressaoLinear:
     def plot(self):
         X1 = self.X[self.y == 1]
         X2 = self.X[self.y == -1]
-        plt.plot(X1[:, 1], X1[:, 2], 'ro')
-        plt.plot(X2[:, 1], X2[:, 2], 'bo')
+        plt.scatter(X1[:, 1], X1[:, 2], c='blue', label='1')
+        plt.scatter(X2[:, 1], X2[:, 2], c='red', label='-1')
         plt.plot(self.X, (-self.w[0] - self.w[1]*self.X) / self.w[2], c='orange')
+        plt.legend()
         # limita com o maior e menor valor de x e y
         plt.xlim(np.min(self.X[:, 1]) - 0.5, np.max(self.X[:, 1]) + 0.5)
         plt.ylim(np.min(self.X[:, 2]) - 0.5, np.max(self.X[:, 2]) + 0.5)       
