@@ -1,5 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+
 
 class RegressaoLinear:
     def __init__(self, X_, y_) -> None:
@@ -27,14 +30,27 @@ class RegressaoLinear:
             y_predito = np.dot(x, self.w)
             return np.array([1 if y > 0 else -1 for y in y_predito])
     
+    def reverse_predict(self, y, lb_1, lb_2):
+        return np.where(y == 1, lb_1, lb_2)
+    
+    def acuracia(self, y_test, y_predict_reversed, labels):
+        print(f"\nAcurácia Regressão Linear para os digitos {labels[0]} e {labels[1]}")
+        print(classification_report(y_test, y_predict_reversed, target_names=labels))
+
     def plot(self):
         X1 = self.X[self.y == 1]
         X2 = self.X[self.y == -1]
+        plt.title(f"Regressão Linear")
+        plt.xlabel("Intensidade")
+        plt.ylabel("Simetria")
         plt.scatter(X1[:, 1], X1[:, 2], c='blue', label='1')
         plt.scatter(X2[:, 1], X2[:, 2], c='red', label='-1')
-        plt.plot(self.X, (-self.w[0] - self.w[1]*self.X) / self.w[2], c='orange')
+        xmin = np.min(self.X[:, 1]) - 0.5
+        xmax = np.max(self.X[:, 1]) + 0.5
+        x = np.linspace(xmin, xmax, 100)
+        plt.plot(x, (-self.w[0] - self.w[1]*x) / self.w[2], label="w", c='orange')
         plt.legend()
         # limita com o maior e menor valor de x e y
-        plt.xlim(np.min(self.X[:, 1]) - 0.5, np.max(self.X[:, 1]) + 0.5)
+        plt.xlim(xmin, xmax)
         plt.ylim(np.min(self.X[:, 2]) - 0.5, np.max(self.X[:, 2]) + 0.5)       
         plt.show()
