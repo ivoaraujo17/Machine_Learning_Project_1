@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+import seaborn as sns
 
 
 class RegressaoLinear:
@@ -34,8 +35,16 @@ class RegressaoLinear:
         return np.where(y == 1, lb_1, lb_2)
     
     def acuracia(self, y_test, y_predict_reversed, labels):
-        print(f"\nAcurácia Regressão Linear para os digitos {labels[0]} e {labels[1]}")
+        print(f"\nAcurácia Regressão Linear")
         print(classification_report(y_test, y_predict_reversed, target_names=labels))
+        # Matriz de confusão
+        cm = confusion_matrix(y_test, y_predict_reversed)
+        plt.figure(figsize=(5, 5))
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels)
+        plt.xlabel("Classe Predita")
+        plt.ylabel("Classe Real")
+        plt.title("Matriz de Confusão")
+        plt.show()
 
     def plot(self):
         X1 = self.X[self.y == 1]
