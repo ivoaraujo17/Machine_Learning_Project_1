@@ -29,7 +29,14 @@ class RegressaoLogistica:
     def fit(self, alpha=0.0001, iteracoes=400):
         lista_custos = np.zeros(iteracoes,)
         for i in range(iteracoes):
-            self.w = self.w - alpha * np.dot(self.X.T, self.sigmoid(np.dot(self.X, self.w)) - np.reshape(self.y, (len(self.y), 1)))
+            # Calculate the predicted values
+            predicted_values = self.sigmoid(np.dot(self.X, self.w))
+            
+            # Calculate the error
+            error = predicted_values - np.reshape(self.y, (len(self.y), 1))
+            
+            # Update the weights
+            self.w = self.w - alpha * np.dot(self.X.T, error)
             lista_custos[i] = self.custo(self.w).item()
 
     def predict(self, x):
