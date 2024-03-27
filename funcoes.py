@@ -1,11 +1,23 @@
 import numpy as np
 
 
-def padronizar(X_tr):
+def padronizar(X_tr, media_std=None):
+    # cria um vetor de zeros com a quantidade de colunas de X_tr e duas linhas (média e desvio padrão)
+    paramentros = np.zeros((2, np.shape(X_tr)[1]))
+    
     for i in range(np.shape(X_tr)[1]):
-        X_tr[:,i] = (X_tr[:,i] - np.mean(X_tr[:,i]))/np.std(X_tr[:,i])
-        
-    return X_tr
+        if media_std is None:
+            # calcula a média
+            paramentros[0, i] = np.mean(X_tr[:,i])
+            # calcula o desvio padrão
+            paramentros[1, i] = np.std(X_tr[:,i])
+        else:
+            paramentros[0, i] = media_std[0, i]
+            paramentros[1, i] = media_std[1, i]
+        # padroniza os dados
+        X_tr[:,i] = (X_tr[:,i] - paramentros[0, i])/paramentros[1, i]
+
+    return X_tr, paramentros
 
 
 def filter(path, digito_1, digito_2):
